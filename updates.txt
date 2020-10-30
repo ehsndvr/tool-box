@@ -1,0 +1,1202 @@
+const Discord = require('discord.js');
+const fs = require('fs');
+const readline = require('readline');
+const ms = require('ms');
+const { send, config } = require('process');
+const json_log = require('./log.json')
+const json_role_log = require('./role_log.json')
+const client = new Discord.Client();
+
+const prefix = "8";
+let disapcher;
+let my_players;
+let num_players = 0;
+let status_num = 0;
+
+client.on('ready', () => {
+
+  //const server_count = client.guilds.cache.;
+  client.user.setStatus('online')
+  console.log(`Logged in as ${client.user.tag}!`);//${client.guilds.cache.keyArray()}`);
+  setInterval(function () {
+    if (status_num == 0) {
+      client.user.setActivity(`Persian MafiaBot In ${client.guilds.cache.size} Servers`, { type: "PLAYING" })
+      status_num += 1;
+    }
+    else {
+      client.user.setActivity('Persian MAFIA BOT | پرشین مافیا بات', { type: "PLAYING" });
+      status_num = 0;
+    }
+  }, 3000);
+});
+
+client.on('message', msg => {
+  if (msg.content.startsWith(`${prefix}rules`)) {
+    const embed = new Discord.MessageEmbed()
+    .setTitle('قوانین بازی مافیا')
+    .setDescription('لطفا تا آخر مطالعه فرمایید')
+    .setColor(0x339966)
+    .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+    .addField('1', `:diamond_shape_with_a_dot_inside:  بعد از مطالعه قوانین در صورت موافقت تیک رو ری اکشن کنید :white_check_mark:`,)
+    .addField('2', `:diamond_shape_with_a_dot_inside:در بازی های ممنوعه و بدون کلیم لطفا از هرگونه اعلام نقش و نزدیک شدن به نقش خودتون خودداری کنید و سعی کنید با این کار باگ داخل بازی ایجاد نکنید`)
+    .addField('3', `:diamond_shape_with_a_dot_inside: مثال : اگه شما کارآگاه بودید و بدون هیچ دلیلی توی روز کسی رو سفید یا سیاه اعلام کردید بطوریکه همه نقش شما رو بفهمن توسط گاد از بازی رد میشید`)
+    .addField('4', `:diamond_shape_with_a_dot_inside: اگه اسنایپر باشید و شات درست بزنید و توی روز اعلام کنید عجب اسنایپری داشتیم همون لحظه رد میشید`)
+    .addField('5', `:diamond_shape_with_a_dot_inside: حتی اگه روی مایک بیاید و بگید من شهروند نقش دارم که بهتون کمک میکنم و شهر بدون من میبازه و... اخطار و دفعه ی دوم رد میشید`)
+    .addField('6', `:diamond_shape_with_a_dot_inside: اگه در ححین بازی به هر دلیلی مشکلی پیش اومد و شما اعلام کنید که من نقشمو اعلام می‌کنم و خودمو از بازی رد میکنم همونجا بدون اعلام نقشتون از بازی کیک انضباطی میشید`)
+    .addField('7', `:diamond_shape_with_a_dot_inside: اطلاق نقش به هیچ عنوان جایز نیست:bangbang:`)
+    .addField('8', `:diamond_shape_with_a_dot_inside:مثال :  شما بگید که من از تو حس کارآگاهی و    میگیرم یا مشابه چنین چیزی از بازی رد میشید`)
+    .addField('9', `:bangbang: اطلاق نقش فقط به مافیا / شهروند / تروریست و شخصی که در بازی کشته شده مجازه`)
+    .addField('10', `:diamond_shape_with_a_dot_inside:مثال :  شما بگید که من از تو حس کارآگاهی و    میگیرم یا مشابه چنین چیزی از بازی رد میشید`)
+    .addField('11', `:bangbang: اطلاق نقش فقط به مافیا / شهروند / تروریست و شخصی که در بازی کشته شده مجازه`)
+    .addField('12', `:diamond_shape_with_a_dot_inside:هرگونه قسم خوردن و استفاده از الفاظی که رو احساسات شخصی تاثیر بگذاره کیک داره
+    مثل بخدا، توروخدا، ب جون تو و....`)
+    .addField('13', `:diamond_shape_with_a_dot_inside:هرگونه گردن گرفتن توی طول بازی رد داره
+    مثال : فلانی از بازی بره بیرون اگه مافیا نبود من میرم`)
+    .addField('14', `:diamond_shape_with_a_dot_inside: من گردن میذارم که فلانی مافیاست بره بیرون`)
+    .addField('15', `:diamond_shape_with_a_dot_inside: از هرگونه پی وی رفتن و پرسیدن نقش حتی کسی که از بازی خارج شده جلوگیری کنید و بازی عادلانه داشته باشید`)
+    .addField('16', `:diamond_shape_with_a_dot_inside: بازی تخریبی و توهین آمیز نداشته باشید`)
+    .addField('17', `:diamond_shape_with_a_dot_inside: اگه در طول بازی گاد اشتباهی انجام داد به هیچ عنوان به گاد اعتراض نکنید و پی وی گاد نرید`)
+    .addField('18', `:diamond_shape_with_a_dot_inside: بعد از بازی تحلیل های تخریبی نداشته باشید و صرفا جهت بهتر کردن روند بازی باشه`)
+    .addField('19', `:diamond_shape_with_a_dot_inside: در هنگام فاز شب و در طول ترن صحبت غیر از ترن خودتون روی مایک نیاید اگه مشکلی ب وجود اومده در پیوی گاد بگید`)
+    .addField('20', `:diamond_shape_with_a_dot_inside: در سکشن چت مافیا جز ایموجی و چلنج چیزی تایپ نکنید و از ایموجی های غیر مجاز استفاده نکنید`)
+    .addField('21', `:diamond_shape_with_a_dot_inside: در حین بازی از الفاظ رکیک و غیر اخلاقی استفاده نکنید استفاده از الفاظ رکیک فقط در بازی های ادولت مجازه`)
+    .addField('22', ':diamond_shape_with_a_dot_inside: با دستور help میتوانید دستورات مورد نظر رو ببینید ')
+    .addField('23', ' :diamond_shape_with_a_dot_inside: دوستان لطفا همه ی بازیکنان dm خود را با کنند ')
+    .addField('24', ' :diamond_shape_with_a_dot_inside: اگر کسی رد شد یا به هر دلیلی از بازی خارج شد نیک نیم او را به dead یا die تغیر بدید')
+    .addField('با تشکر از شما برای استفاده کردن از بات ما و بازی خوبی رو براتون آرزومندیم ❤️', 'پایانی ❤️')
+    msg.channel.send(embed)
+    .then(embedmessage => {
+      embedmessage.react('✅')
+    })
+  }
+  if (msg.content.startsWith(`${prefix}help`)) {
+    const embed = new Discord.MessageEmbed()
+    //.setImage('https://media.giphy.com/media/jReNBx0RUPD8ysIz1Y/giphy.gif')
+    //\ninvite : اضافه کردن بات به سرور خود```' }
+    .addFields(
+      { name: 'mafia(voice)Commands', value: '```\njoin : جوین ویس میشم\nleave : از ویس خارج میشم\nnight : شب میشه و من همرو میوت میکنم و نمزارم کسی چن کنه\nday : روز شروع میشه و من همرو آن میوت میکنم و میزارم چت کنید \ntimer : تایمر به اینطوری کار میکنه timer 10s\nmuteAll: تمام افراد تویه ویس را میوت کنید\nfreeAll: تمام افراد تویه ویس را ان میوت کنید\nyon : با این دستور میتونید سوال های بله یا خیر به همراه ری اکشن درست کنید```' },
+      //{ name: 'Mute/Unmute', value:'\nmute : mute members in voice channel\nunute : unmute the members in voice channel'},
+      { name: 'Game Mode : Automatic', value: '```\nrole : واسه کسایی که میخوان بازی کنن نقش هاشونو تو پی وی میفرستم\nshowrole : نقش بازیکنان رو نشون میدم\nautotimer : وقت میدم تا بازیکنان صحبت کنن ، به این صورت autotimer <time> یا autotimer\nautoname : با این دستور میتوانید به بازیکنان شماره بدهید```' },
+      { name: 'Game Mode : Custom', value: '```\nccr : ایجاد کردن نقش ها به صورت دستی\ncl : پاک کردن نقش های کاستوم\nscr : نشون دادن نقش هایی که ساختید\nrole : بخش کردن نفش های ساخته شده بین بازیکنان```'},
+      { name: 'additional commands', value: '```\nhelp : پیام راهنمایی رو به شما نشون میدم\nrules : قوانین بازی رو نشون میدم\nsupport : پشتیبانی```' }
+    )
+    .addField('WARNING', '⚠️ فقط کسی که رول مافیا گاد رو داشته باشه میتونه از من استفاده بکنه ⚠️')
+    .addField('لطفا قبل از بازی کردن قوانین بازی را بخوانید تا به مشکلی بر نخورید', 'توجه')
+    .setColor(0x34ebd0)
+    .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+    msg.channel.send(embed);
+    msg.channel.send('https://cdn.discordapp.com/attachments/733319424873857124/750624231506837524/09-38-29-animated-line-image-0091-1.gif')
+
+  }
+  if (msg.content === `${prefix}join`) {
+    if(msg.guild.me.voice.channel)
+    {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('من تو چنلم')
+      .setColor(0x3399ff)
+      return msg.channel.send(embed)
+    }
+    if (msg.member.voice.channel) {
+      const connection = msg.member.voice.channel.join();
+      const embed = new Discord.MessageEmbed()
+      .setColor(0x1fd100)
+      .setTitle("من اومدم 😁")
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      msg.channel.send(embed);
+      //msg.channel.send('https://cdn.discordapp.com/attachments/733319424873857124/750625754475135036/redarrowline.gif')
+    } else {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xff0000)
+      .setTitle("شما توی ویس چنل نیستید")
+      .setImage('https://i.pinimg.com/originals/2e/c4/83/2ec483f48136f1301ab6f690de2de469.gif')
+      msg.channel.send(embed);
+    }
+  }
+  if (msg.content === `${prefix}leave`) {
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .setImage('https://media.giphy.com/media/6Q2KA5ly49368/giphy.gif')
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('شما نمیتوانید از بات استفاده کنید')
+      .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+      .setColor(0xff0000)
+      return msg.channel.send(embed)
+    }
+    if(!msg.guild.me.voice.channel)
+    {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('تو چنلی نیستم که بخوام بیام بیرون')
+      .setColor(0x3399ff)
+      return msg.channel.send(embed)
+    }
+    if (msg.member.voice.channel) {
+      const connection = msg.member.voice.channel;
+      connection.leave();
+      const embed = new Discord.MessageEmbed()
+      .setColor(0x1fd100)
+      .setTitle("من رفتم 😁")
+      .setImage('https://gifimage.net/wp-content/uploads/2017/10/mafia-gif-4.gif')
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      msg.channel.send(embed);
+      //msg.channel.send('https://cdn.discordapp.com/attachments/738366244461477949/750360228154966078/1111111111111111111111111111111-1-1.gif')
+    } else {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xff0000)
+      .setTitle("شما توی ویس چنل نیستید")
+      .setImage('https://i.pinimg.com/originals/2e/c4/83/2ec483f48136f1301ab6f690de2de469.gif')
+      msg.channel.send(embed);
+    }
+  }
+  if (msg.content === `${prefix}night`) {
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      .setImage('https://media.giphy.com/media/6Q2KA5ly49368/giphy.gif')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('شما نمیتوانید از بات استفاده کنید')
+      .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+      .setColor(0xff0000)
+      return msg.channel.send(embed)
+    }
+    if (msg.member.voice.channel) {
+      msg.channel.updateOverwrite(msg.guild.roles.everyone, {
+        SEND_MESSAGES: false
+      })
+      const god_role = msg.guild.roles.cache.find(role => role.name === "Mafia God")
+      msg.channel.updateOverwrite(god_role, {
+        SEND_MESSAGES: true
+      });
+      msg.channel.updateOverwrite()
+      const connection = msg.member.voice.channel.members;
+      const connecting = msg.member.voice.channel;
+      for (const [server_member_id, server_member] of connection) {
+        if (server_member.id !== client.user.id) {
+          server_member.voice.setMute(true, "mafia")
+        }
+      }
+      const embed = new Discord.MessageEmbed()
+      .setColor(0x1fd100)
+      .setTitle("شب شروع شد")
+      .setImage('https://media.giphy.com/media/aaTz9fnXkzoQ/giphy.gif')
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      msg.channel.send(embed);
+      msg.channel.send('https://cdn.discordapp.com/attachments/738366244461477949/750360228154966078/1111111111111111111111111111111-1-1.gif')
+      msg.channel.send('')
+      connecting.join()
+      .then(connector => {
+        disapcher = connector.play('./mafia.mp3', { filter: 'audioonly' })
+        disapcher.setVolume(1);
+        disapcher.on('finish', () => {
+          disapcher = connector.play('./mafia.mp3', { filter: 'audioonly' });
+        });
+      });
+    } else {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xff0000)
+      .setTitle("شما توی ویس چنل نیستید")
+      .setImage('https://i.pinimg.com/originals/2e/c4/83/2ec483f48136f1301ab6f690de2de469.gif')
+      msg.channel.send(embed);
+    }
+  }
+  if (msg.content === `${prefix}day`) {
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      .setImage('https://media.giphy.com/media/6Q2KA5ly49368/giphy.gif')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+        .setTitle('شما نمیتوانید از بات استفاده کنید')
+        .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+        .setColor(0xff0000)
+      return msg.channel.send(embed)
+    }
+    if (msg.member.voice.channel) {
+      msg.channel.updateOverwrite(msg.guild.roles.everyone, {
+        SEND_MESSAGES: null
+      })
+      const god_role = msg.guild.roles.cache.find(role => role.name === "Mafia God")
+      msg.channel.updateOverwrite(god_role, {
+        SEND_MESSAGES: null
+      });
+      const connection = msg.member.voice.channel.members;
+      for (const [server_member_id, server_member] of connection) {
+        if (server_member.id !== client.user.id) {
+          server_member.voice.setMute(false, "mafia")
+        }
+      }
+      const embed = new Discord.MessageEmbed()
+      .setColor(0x1fd100)
+      .setTitle("روز شروع شد")
+      .setImage('https://media.giphy.com/media/3ROGCp62zakRW/giphy.gif')
+      //.setImage('https://images.squarespace-cdn.com/content/v1/542ce587e4b003527579fd2f/1422254901099-8PFGL14C4D45W55ZJMD8/ke17ZwdGBToddI8pDm48kAx-7VAVUrX83-TmKtI9GwFZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpzjxOd1QqWVSDMmGb_7RWR-xbrRIPXdQRvPw48mQHlcKeFmwpAiuBpxGlYDuvh8_jg/sun.gif')
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      msg.channel.send(embed);
+      msg.channel.send('https://cdn.discordapp.com/attachments/738366244461477949/750360488654798948/image0-4-2-1.gif')
+      if (disapcher != undefined) {
+        disapcher.destroy();
+      }
+    } else {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xff0000)
+      .addField("خطایی پیش آمد", "error")
+      msg.channel.send(embed);
+    }
+  }
+  if (msg.content.toLowerCase().startsWith(`${prefix}role`)) {
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+        .setTitle('شما نمیتوانید از بات استفاده کنید')
+        .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+        .setColor(0xff0000)
+      return msg.channel.send(embed)
+    }
+    if (msg.member.voice.channel) {
+      let config_json_file;
+      config_json_file = json_log
+      config_json_file[msg.guild.id] = [];
+      const voice_chan = msg.member.voice.channel.members;
+      my_players = "";
+      let boodian_natasha = false;
+      num_players = 0;
+      let doc_boolian = false;
+      let num_mafia;
+      let det_boolian = false;
+      let boolian_sniper = false;
+      let boolian_roin_tan = false;
+      let boolian_neron = false;
+      let boolian_ahangar = false;
+      let boolian_feramason = false;
+      let boolian_dozd = false;
+      let boolian_jasos = false;
+      let boolian_vakil = false;
+      let boolian_dan = false;
+      let boolian_trrorist = false;
+      let boolian_tyler = false;
+      let boolian_keshish = false;
+      let boolian_kaboy = false;
+      let boolian_saghi = false;
+      let boolian_mohafez = false;
+      for (let [server_member_id, server_member] of voice_chan) {
+        const nick = server_member.nickname;
+        let t;
+        t = false;
+        if (nick !== null) {
+          if (nick.toLowerCase() === "spect" || nick === "تماشاچی" || nick === "شنونده" || nick.toLowerCase() === "god") {
+            t = true;
+          }
+        }
+        if (server_member.id !== client.user.id && t == false) {
+          num_players += 1;
+          my_players += server_member.user.username + "\n";
+        }
+      }
+      num_mafia = Math.floor(num_players / 3);
+      if (json_role_log[msg.guild.id] === undefined && num_players < 5) {
+        const embed = new Discord.MessageEmbed()
+          .addField('🔴 Players Count 🔴', 'تعداد پلیر ها به 5 نفر نرسیده');
+        return msg.channel.send(embed)
+      }
+      if (json_role_log[msg.guild.id] !== undefined && num_players < 3) {
+        const embed = new Discord.MessageEmbed()
+          .addField('🔴 Players Count 🔴', 'تعداد پلیر ها به 3 نفر نرسیده');
+        return msg.channel.send(embed)
+      }
+      if(json_role_log[msg.guild.id] === undefined)
+      {
+        let just_numing_for_bettering = num_players;
+        //exec("del " + `${msg.guild.id}.txt`)
+        for (let [server_member_id, server_member] of voice_chan) {
+          const nick = server_member.nickname;
+          let t;
+          t = false;
+          if (nick !== null) {
+            if (nick.toLowerCase() === "spect" || nick === "تماشاچی" || nick === "شنونده" || nick.toLowerCase() === "god") {
+              t = true;
+            }
+          }
+          if (server_member.id !== client.user.id && t === false) {
+            let numing = 5;
+            while (true) {
+              if (doc_boolian == false && just_numing_for_bettering >= 5) {
+                if (det_boolian == false) {
+                  numing = Math.floor(Math.random() * 2);
+                }
+                else if (det_boolian == true) {
+                  server_member.send('دکتر');
+                  //exec("echo " + server_member_id + " doctor >> " + `${msg.guild.id}.txt`);
+                  let __json__ = { id: server_member_id, role_mafia: "doctor" }
+                  config_json_file[msg.guild.id].push(__json__)
+                  doc_boolian = true;
+                  break;
+                }
+              }
+              if (det_boolian == false && doc_boolian == true && numing === 4) {
+                server_member.send('کارآکاه');
+                //exec("echo " + server_member_id + " karaga >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "karaga" }
+                config_json_file[msg.guild.id].push(__json__)
+                det_boolian = true;
+                break;
+              }
+              if (num_players - num_mafia == just_numing_for_bettering) {
+                server_member.send('مافیا');
+                //exec("echo " + server_member_id + " mafia >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "mafia" }
+                config_json_file[msg.guild.id].push(__json__)
+                num_mafia -= 1;
+                break;
+              }
+              else {
+                numing = Math.floor(Math.random() * 22);
+              }
+              if (numing == 0 && doc_boolian == false) {
+                server_member.send('دکتر');
+
+                let __json__ = { id: server_member_id, role_mafia: "doctor" }
+                config_json_file[msg.guild.id].push(__json__)
+                doc_boolian = true;
+                break;
+              }
+              else if (numing == 1 && det_boolian == false) {
+                server_member.send('کارآکاه');
+                //exec("echo " + server_member_id + " karaga >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "karaga" }
+                config_json_file[msg.guild.id].push(__json__)
+                det_boolian = true;
+                break;
+              }
+              else if (numing == 2 && num_mafia != 0) {
+                server_member.send('مافیا');
+                //exec("echo " + server_member_id + " mafia >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "mafia" }
+                config_json_file[msg.guild.id].push(__json__)
+                num_mafia -= 1;
+                break;
+              }
+              else if (numing == 3) {
+                server_member.send('شهروند ساده');
+                //exec("echo " + server_member_id + " shahrvande_sade >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "shahrvande_sade" }
+                config_json_file[msg.guild.id].push(__json__)
+                break;
+              }
+              else if (numing == 4 && num_players >= 10 && num_players <= 20 && boolian_sniper == false) {
+                server_member.send('اسنایپر');
+                //exec("echo" + server_member_id + " sniper >> " + `${msg.guild.id}.txt`); 
+                let __json__ = { id: server_member_id, role_mafia: "sniper" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_sniper = true;
+                break;
+              }
+              else if (numing == 5 && num_players >= 9 && num_players <= 20 && boolian_trrorist == false) {
+                server_member.send('تروریست');
+                //exec("echo" + server_member_id + " terrorist >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "terrorist" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_trrorist = true;
+                break;
+              }
+              else if (numing == 6 && num_players <= 14 && num_players >= 13 && boodian_natasha == false) {
+                server_member.send('ناتاشا ');
+                //exec("echo " + server_member_id + " natasha  >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "natasha" }
+                config_json_file[msg.guild.id].push(__json__)
+                boodian_natasha = true;
+                break;
+              }
+              else if (numing == 7 && num_players >= 10 && boolian_roin_tan == false) {
+                server_member.send('روئین تن');
+                //exec("echo " + server_member_id + " roin_tan   >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "roin_tan" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_roin_tan = true;
+                break;
+              }
+              else if (numing == 8 && num_players >= 20 && boolian_neron == false) {
+                server_member.send('نرون');
+                //exec("echo " + server_member_id + " neron >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "neron" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_neron = true;
+                break;
+              }
+              else if (numing == 9 && num_players > 19 && boolian_ahangar == false) {
+                server_member.send('اهنگر');
+                //exec("echo " + server_member_id + " ahangar >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "ahangar" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_ahangar = true;
+                break;
+              }
+              else if (numing == 10 && num_players >= 16 && num_players <= 20 && boolian_feramason == false) {
+                server_member.send('فراماسون');
+                //exec("echo " + server_member_id + " framason >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "framason" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_feramason = true;
+                break;
+              }
+              else if (numing == 11 && num_players >= 19 && boolian_dozd == false) {
+                server_member.send('دزد');
+                //exec("echo " + server_member_id + " dozd >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "dozd" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_dozd = true;
+                break;
+              }
+              else if (numing == 12 && num_players >= 18 && boolian_jasos == false) {
+                server_member.send('جاسوس');
+                //exec("echo " + server_member_id + " jasos >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "jasos" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_jasos = true;
+                break;
+              }
+              else if (numing == 13 && num_players >= 15 && boolian_vakil == false) {
+                server_member.send('وکیل');
+                //exec("echo " + server_member_id + " vakil   >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "vakil" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_vakil = true;
+                break;
+              }
+              else if (numing == 14 && boolian_dan == false) {
+                server_member.send('دان');
+                //exec("echo " + server_member_id + " dan >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: msg.guild.id, role_mafia: "dan" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_dan = true;
+                break;
+              }
+              else if (numing == 15 && num_players >= 16 && num_players <= 20 && boolian_tyler == false) {
+                server_member.send('تایلر');
+                //exec("echo " + server_member_id + " tyler >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "tyler" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_tyler = true;
+                break;
+              }
+              else if (numing == 16 && num_players >= 14 && num_players <= 20 && boolian_keshish == false) {
+                server_member.send('کشیش');
+                //exec("echo " + server_member_id + " keshish >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "keshish" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_keshish = true;
+                break;
+              }
+              else if (numing == 17 && num_players >= 14 && num_players <= 20 && boolian_kaboy == false) {
+                server_member.send('کابوی');
+                //exec("echo " + server_member_id + " kaboy >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "kaboy" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_kaboy = true;
+                break;
+              }
+              else if (numing == 18 && num_players >= 14 && num_players <= 20 && boolian_tofangdar == false) {
+                server_member.send('تفنگدار');
+                //exec("echo " + server_member_id + " tofangdar   >> " + `${msg.guild.id}.txt`); // *2
+                let __json__ = { id: server_member_id, role_mafia: "tofangdar" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_tofangdar = true;
+                break
+              }
+              else if (numing == 19 && num_players >= 19 && boolian_saghi == false) {
+                server_member.send('ساقي');
+                //exec("echo " + server_member_id + " saghi   >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "saghi" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_saghi = true;
+                break;
+              }
+              else if (numing == 20 && num_players >= 15 && num_players <= 20 && boolian_mohafez == false) {
+                server_member.send('محافظ');
+                //exec("echo " + server_member_id + " mohafez   >> " + `${msg.guild.id}.txt`);
+                let __json__ = { id: server_member_id, role_mafia: "mohafez" }
+                config_json_file[msg.guild.id].push(__json__)
+                boolian_mohafez = true;
+                break;
+              }
+              else {
+                continue;
+              }
+            }
+            just_numing_for_bettering -= 1;
+          }
+        }
+        let json_complete = JSON.stringify(config_json_file)
+        fs.writeFile("log.json", json_complete, function (err) {
+          if (err) throw err;
+          console.log('complete');
+        });
+        const embed = new Discord.MessageEmbed()
+        .setColor(0x1fd100)
+        .addField("نقش ها داده شد", "`" + my_players + "`")
+        .addField('تعداد پلیر ها', num_players)
+        .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+        msg.channel.send(embed);
+        msg.channel.send('https://cdn.discordapp.com/attachments/733319424873857124/750625783159980032/image1.gif')
+        setTimeout(function () {
+          let member_here
+          let member_role_
+          let results_ = ""
+          for (let i = 0; i < json_log[msg.guild.id].length; i++) {
+            try {
+              let _member_ = json_log[msg.guild.id][i].id;
+              member_here = msg.guild.members.cache.get(_member_).user.tag
+              member_role_ = json_log[msg.guild.id][i].role_mafia;
+              if (member_here !== undefined) {
+                member_here = member_here.user.tag
+              }
+            }
+            catch (err) {
+              member_here = member_here
+            }
+            results_ += member_here + " : " + member_role_ + "\n"
+          }
+          for (let [server_member_id, server_member] of msg.member.voice.channel.members) {
+            if (server_member.nickname !== null) {
+              if (server_member.nickname.toLowerCase() === "god" && msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+                const embed = new Discord.MessageEmbed()
+                .setColor(Math.floor(Math.random() * 16777214) + 1)
+                .setTitle('نقش بازیکن ها')
+                .setFooter(results_)
+                server_member.send(embed);
+                break;
+              }
+            }
+          }
+        }, ms("5s"))
+      }
+      else{
+        let num_ = 0;
+        let role_log_json_ = json_role_log[msg.guild.id];
+        for(let i = 0; i < role_log_json_.length; i++)
+        {
+          num_ += parseInt(role_log_json_[i].role_num);
+        }
+        if(num_ != num_players)
+        {
+          const embed_ = new Discord.MessageEmbed()
+          .setTitle('لطفا اول تعداد نقش هارا درست کنید')
+          .setColor(0xe02200)
+          return msg.channel.send(embed_)
+        }
+        
+        let config_json_file = json_log;
+        for (let [server_member_id, server_member] of msg.member.voice.channel.members)
+        {
+          const nick = server_member.nickname;
+          let t;
+          t = false;
+          if (nick !== null) {
+            if (nick.toLowerCase() === "spect" || nick === "تماشاچی" || nick === "شنونده" || nick.toLowerCase() === "god") {
+              t = true;
+            }
+          }
+          if (server_member.id !== client.user.id && t == false) {
+            while(true){
+              let randoming_ = Math.floor(Math.random() * role_log_json_.length)
+              if(role_log_json_[randoming_].role_num > 0)
+              {
+                server_member.send(role_log_json_[randoming_].role_name)
+                let __json__ = { id: server_member_id, role_mafia: `${role_log_json_[randoming_].role_name}` }
+                config_json_file[msg.guild.id].push(__json__)
+                role_log_json_[randoming_].role_num = role_log_json_[randoming_].role_num - 1;
+                break;
+              }
+              else{
+                continue;
+              }
+            }
+          }
+        }
+        let json_complete = JSON.stringify(config_json_file)
+        fs.writeFile("log.json", json_complete, function (err) {
+          if (err) throw err;
+          console.log('complete');
+        });
+        delete json_complete; delete config_json_file; delete role_log_json_
+        const embed = new Discord.MessageEmbed()
+        .setColor(0x1fd100)
+        .addField("نقش ها داده شد", "`" + my_players + "`")
+        .addField('تعداد پلیر ها', num_players)
+        .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+        msg.channel.send(embed);
+        setTimeout(function () {
+          let member_here
+          let member_role_
+          let results_ = ""
+          for (let i = 0; i < json_log[msg.guild.id].length; i++) {
+            try {
+              let _member_ = json_log[msg.guild.id][i].id;
+              member_here = msg.guild.members.cache.get(_member_).user.tag
+              member_role_ = json_log[msg.guild.id][i].role_mafia;
+              if (member_here !== undefined) {
+                member_here = member_here.user.tag
+              }
+            }
+            catch (err) {
+              member_here = member_here
+            }
+            results_ += member_here + " : " + member_role_ + "\n"
+          }
+          for (let [server_member_id, server_member] of msg.member.voice.channel.members) {
+            if (server_member.nickname !== null) {
+              if (server_member.nickname.toLowerCase() === "god" && msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+                const embed = new Discord.MessageEmbed()
+                .setColor(Math.floor(Math.random() * 16777214) + 1)
+                .setTitle('نقش بازیکن ها')
+                .setFooter(results_)
+                server_member.send(embed);
+                break;
+              }
+            }
+          }
+        }, ms("5s"))
+      }
+    } else {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xff0000)
+      .addField("Mafia Game ERROR", "اول خودت برو تو چنل")
+      msg.channel.send(embed);
+    }
+  }
+  if (msg.content.startsWith(`${prefix}timer`)) {
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    const args = msg.content.slice(prefix.length).trim().split(' ');
+    const embed = new Discord.MessageEmbed()
+    .setTitle(`⏲️ تایمر برای ${args[1]} ایجاد شد ⏲️`)
+    .setColor(0x34cceb)
+    .setImage('https://media.giphy.com/media/tIkn1XiX95mZPDZ4Gr/giphy.gif')
+    .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+    msg.channel.send(embed)
+    setTimeout(function () {
+      const embed_ = new Discord.MessageEmbed()
+      .setColor()
+      .setTitle(`تمام شده ${args[1]}`)
+      msg.channel.send(embed_)
+    }, ms(args[1]));
+  }
+  if (msg.content.toLowerCase().startsWith(`${prefix}showrole`)) {
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .setImage('https://media.giphy.com/media/6Q2KA5ly49368/giphy.gif')
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('شما نمیتوانید از بات استفاده کنید')
+      .setColor(0xe60000)
+      .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      return msg.channel.send(embed)
+    }
+    let resalts_ = "";
+    let member_name = "";
+    if (json_log[msg.guild.id] === undefined) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('لطفا اول نقش ها را بدهید')
+      return msg.channel.send(embed);
+    }
+    for (let i = 0; i < json_log[msg.guild.id].length; i++) {
+      try {
+        let _member_ = json_log[msg.guild.id][i].id;
+        member_here = `<@${_member_}>`//msg.guild.members.cache.get(_member_).user.tag
+        member_name = msg.guild.members.cache.get(_member_).user.tag;
+        member_role_ = json_log[msg.guild.id][i].role_mafia;
+        if (member_here !== undefined) {
+          member_here = member_here.user.tag
+        }
+      }
+      catch (err) {
+        member_here = member_here
+      }
+      resalts_ += member_here + " : " + `${member_name}` + " : " + ` ${member_role_}` + "\n"
+    }
+    const embed = new Discord.MessageEmbed()
+    .addField('نقش های بازی کن ها', `${resalts_}`)
+    msg.channel.send(embed)
+  }
+  if (msg.content.toLowerCase().startsWith(`${prefix}createrole`) || msg.content.toLowerCase().startsWith(`${prefix}ccr`)) {
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .setImage('https://media.giphy.com/media/6Q2KA5ly49368/giphy.gif')
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('شما نمیتوانید از بات استفاده کنید')
+      .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+      .setColor(0xff0000)
+      return msg.channel.send(embed)
+    }
+    const args = msg.content.slice(prefix.length).trim().split(' ');
+    let log_role_json = json_role_log;
+    if (log_role_json[msg.guild.id] === undefined) {
+      log_role_json[msg.guild.id] = []
+    }
+    if (args.length === 1) {
+      return
+    }
+    let err_ = "";
+    let tof = true;
+    let int_ = 0
+    for (let i = 1; i <= args.length; i++) {
+      if (args[i] === undefined) {
+        break;
+      }
+      tof = true;
+      if(json_role_log[msg.guild.id] !== undefined){
+        for (let j = 0; j < json_role_log[msg.guild.id].length; j++)
+        {
+          if(args[i] === json_role_log[msg.guild.id][j].role_name)
+          {
+            tof = false;
+            int_ = j;
+            break;
+          }
+        }
+      }
+      if(tof === false)
+      {
+        if (args[i + 1] !== undefined && isNaN(args[i + 1]) === false) {
+          err_ += "✅ " + args[i] + " role added\n";
+          log_role_json[msg.guild.id][int_].role_num = args[i + 1];
+          i += 1;
+        }
+        else {
+          err_ += "✅ " + args[i] + " role added\n";
+          log_role_json[msg.guild.id][int_].role_num = 1;
+        }
+        
+      }
+      else{
+        if (args[i + 1] !== undefined && isNaN(args[i + 1]) === false) {
+          err_ += "✅ " + args[i] + " role added\n";
+          let __json__ = { role_name: `${args[i]}`, role_num: parseInt(args[i + 1]) }
+          log_role_json[msg.guild.id].push(__json__)
+          i += 1;
+        }
+        else {
+          err_ += "✅ " + args[i] + " role added\n";
+          let __json__ = { role_name: `${args[i]}`, role_num: 1 }
+          log_role_json[msg.guild.id].push(__json__)
+        }
+      }
+    }
+    let json_complete = JSON.stringify(log_role_json)
+    fs.writeFile("./role_log.json", json_complete, function (err) {
+      if (err) throw err;
+      console.log('complete');
+    });
+    const embed_ = new Discord.MessageEmbed()
+    .addField('COSTUME ROLE', `${err_}`)
+    msg.channel.send(embed_)
+    delete embed_;
+    err_ = undefined;
+    delete err_;
+  }
+  if (msg.content.toLowerCase().startsWith(`${prefix}showcustomrole`) || msg.content.toLowerCase().startsWith(`${prefix}scr`)) {
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .setImage('https://media.giphy.com/media/6Q2KA5ly49368/giphy.gif')
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('شما نمیتوانید از بات استفاده کنید')
+      .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+      .setColor(0xff0000)
+      return msg.channel.send(embed)
+    }
+    if (json_role_log[msg.guild.id] === undefined || json_role_log[msg.guild.id][0] === undefined || json_role_log[msg.guild.id][0] === null || json_role_log[msg.guild.id] === null) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('لطفا اول رول هارا تنظیم کنید')
+      return msg.channel.send(embed);
+    }
+    let results_ = "```";
+    for (let i = 0; i < json_role_log[msg.guild.id].length; i++) {
+      results_ += `${json_role_log[msg.guild.id][i].role_name} : ${json_role_log[msg.guild.id][i].role_num}\n`
+    }
+    results_ += "```"
+    const embed = new Discord.MessageEmbed()
+    .addField('CUSTOME ROLES', `${results_}`)
+    .setColor(0x14eaf5)
+    msg.channel.send(embed)
+  }
+  if (msg.content.toLowerCase().startsWith(`${prefix}deleterole`) || msg.content.toLowerCase().startsWith(`${prefix}cl`)) {
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .setImage('https://media.giphy.com/media/6Q2KA5ly49368/giphy.gif')
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('شما نمیتوانید از بات استفاده کنید')
+      .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+      .setColor(0xff0000)
+      return msg.channel.send(embed)
+    }
+    const args = msg.content.slice(prefix.length).trim().split(' ')
+    if (args.length === 1) {
+      if (json_role_log[msg.guild.id] === undefined) {
+        const embed = new Discord.MessageEmbed()
+        .setTitle('لطفا اول رول هارا تنظیم کنید')
+        return msg.channel.send(embed);
+      }
+      delete json_role_log[msg.guild.id]
+      let json_complete = JSON.stringify(json_role_log)
+      fs.writeFile("./role_log.json", json_complete, function (err) {
+        if (err) throw err;
+        console.log('complete');
+      });
+      const embed = new Discord.MessageEmbed()
+      .setTitle('نقش ها پاک شد')
+      .setColor(0x5e32a8)
+      msg.channel.send(embed)
+    }
+    else {
+      if (json_role_log[msg.guild.id] === undefined || json_role_log[msg.guild.id][0] === undefined) {
+        const embed = new Discord.MessageEmbed()
+        .setTitle('لطفا اول رول هارا تنظیم کنید')
+        return msg.channel.send(embed);
+      }
+      let re = [];
+      for (let i = 0; i < json_role_log[msg.guild.id].length; i++) {
+        if (json_role_log[msg.guild.id][i].role_name !== args[1]) {
+          let res = { role_name: json_role_log[msg.guild.id][i].role_name, role_num: json_role_log[msg.guild.id][i].role_num };
+          re.push(res);
+        }
+      }
+      json_role_log[msg.guild.id] = re;
+      let json_complete = JSON.stringify(json_role_log)
+      fs.writeFile("./role_log.json", json_complete, function (err) {
+        if (err) throw err;
+        console.log('complete');
+      });
+      const embed = new Discord.MessageEmbed()
+      .setTitle('تکمیل شد')
+      .setColor(0x5e32a8)
+      msg.channel.send(embed)
+    }
+  }
+  if(msg.content.toLowerCase().startsWith(`${prefix}muteall`))
+  {
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .setImage('https://media.giphy.com/media/6Q2KA5ly49368/giphy.gif')
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('شما نمیتوانید از بات استفاده کنید')
+      .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+      .setColor(0xff0000)
+      return msg.channel.send(embed)
+    }
+    if(!msg.member.voice.channel)
+    {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xff0000)
+      .addField("Mafia Game ERROR", "اول خودت برو تو چنل")
+      return msg.channel.send(embed);
+    }
+    for (let [server_member_id, server_member] of msg.member.voice.channel.members)
+    {
+      const nick = server_member.nickname;
+      let t;
+      t = false;
+      if (nick !== null) {
+        if (nick.toLowerCase() === "god") {
+          t = true;
+        }
+      }
+      if (server_member.id !== client.user.id && t === false) {
+        server_member.voice.setMute(true)
+      }
+    }
+    const embed = new Discord.MessageEmbed()
+    .setTitle('همه ی افراد میوت شدند')
+    .setColor(0x00ff55)
+    msg.channel.send(embed)
+  }
+  if(msg.content.toLowerCase().startsWith(`${prefix}freeall`))
+  {
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .setImage('https://media.giphy.com/media/6Q2KA5ly49368/giphy.gif')
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('شما نمیتوانید از بات استفاده کنید')
+      .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+      .setColor(0xff0000)
+      return msg.channel.send(embed)
+    }
+    if(!msg.member.voice.channel)
+    {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xff0000)
+      .addField("Mafia Game ERROR", "اول خودت برو تو چنل")
+      return msg.channel.send(embed);
+    }
+    for (let [server_member_id, server_member] of msg.member.voice.channel.members)
+    {
+      if (server_member.id !== client.user.id) {
+        server_member.voice.setMute(false)
+      }
+    }
+    const embed = new Discord.MessageEmbed()
+    .setTitle('همه ی افراد انمیوت شدند')
+    .setColor(0x00ff55)
+    msg.channel.send(embed)
+  }
+  if (msg.content.startsWith(`${prefix}yon`)) {
+    const args = msg.content.slice(prefix.length + 3);
+    const embed = new Discord.MessageEmbed()
+    .setColor(0x7932a8)
+    .setTitle(`${args}`)
+    .addField('لطفا رای بدهید', `Please vote!`)
+    .setImage('https://media.giphy.com/media/3SLnytgfJTaxy/giphy.gif')
+    .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+    msg.delete({ timeout: 100 })
+    msg.channel.send(embed).then(embedmessage => {
+      embedmessage.react('✅')
+      .then(
+        embedmessage.react('❌')
+      )
+    })
+  }
+  if (msg.content.toLowerCase().startsWith(`${prefix}autotimer`)) {
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.voice.channel) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('لطفا اول وارد ویس شوید')
+      return msg.channel.send(embed);
+    }
+    if (json_log[msg.guild.id] === undefined) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('لطفا اول نقش ها را بدهید')
+      return msg.channel.send(embed);
+    }
+    const embed = new Discord.MessageEmbed()
+    .setTitle(`autotimer شروع شد`)
+    msg.channel.send(embed)
+    const args = msg.content.slice(prefix.length).trim().split(' ');
+    for (let [server_member_id, server_member] of msg.member.voice.channel.members) {
+      const nick = server_member.nickname;
+      let t;
+      t = false;
+      if (nick !== null) {
+        if (nick.toLowerCase() === "spect" || nick === "تماشاچی" || nick === "شنونده" || nick.toLowerCase() === "god") {
+          t = true;
+        }
+      }
+      if (server_member.id !== client.user.id && t == false) {
+        server_member.voice.setMute(true, "mafia")
+      }
+    }
+    if (args.length === 1) {
+      let i_ = 0;
+      for (let i = 0; i < json_log[msg.guild.id].length; i++) {
+        
+        let numing = 6000;
+
+        let _member_ = msg.guild.members.cache.get(json_log[msg.guild.id][i].id);
+        if (_member_.nickname !== null) {
+          if (_member_.nickname.toLowerCase() === "dead" || _member_.nickname.toLowerCase() === "die") {
+            i_ = i_ - 1;
+          }
+        }
+        if (i_ == 0) {
+          numing = 1
+        }
+        else {
+          numing = i_ * 60000;
+        }
+        if (_member_.user.id !== client.user.id) {
+          setTimeout(function () {
+            _member_.voice.setMute(false, 'mafia')
+          }, numing)///i * 60000)
+          setTimeout(function () {
+            _member_.voice.setMute(true, 'mafia');
+          }, (i_ + 1) * 60000)///(i + 1) * 60000)
+        }
+        i_ = i_ + 1;
+      }
+    }
+    else {
+      let num_1_ = args[1] * 1000;
+      let i_ = 0;
+      let numing = num_1_;
+      for (let i = 0; i < json_log[msg.guild.id].length; i++) {
+        let _member_ = msg.guild.members.cache.get(json_log[msg.guild.id][i].id);
+        if (_member_.nickname !== null) {
+          if (_member_.nickname.toLowerCase() === "dead" || _member_.nickname.toLowerCase() === "die") {
+            i_ = i - 1;
+          }
+        }
+        if (i_ == 0) {
+          numing = 1
+        }
+        else {
+          numing = i_ * num_1_;
+        }
+        if (_member_.user.id !== client.user.id && _member_.voice.channel) {
+          setTimeout(function () {
+            _member_.voice.setMute(false, 'mafia')
+          }, numing)///i * 60000)
+          setTimeout(function () {
+            _member_.voice.setMute(true, 'mafia');
+            console.log(_member_.id)
+          }, (i_ + 1) * num_1_)///(i + 1) * 60000)
+        }
+        if(_member_.voice.channel)
+        {
+          i_ = i_ + 1;
+        }
+      }
+    }
+  }
+  if (msg.content.startsWith(`${prefix}autoname`)) {
+    if (!msg.member.voice.channel) {
+      const embed = new Discord.MessageEmbed()
+        .setTitle('لطفا اول وارد ویس شوید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.roles.cache.find(r => r.name === "Mafia God")) {
+      const embed = new Discord.MessageEmbed()
+      .setColor(0xffff99)
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      .setImage('https://media.giphy.com/media/6Q2KA5ly49368/giphy.gif')
+      .addField('فقط گاد میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+      .setTitle('شما نمیتوانید از بات استفاده کنید')
+      .setColor(0xe60000)
+      .setImage('https://thumbs.gfycat.com/AnotherWarpedConch-size_restricted.gif')
+      .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+      return msg.channel.send(embed)
+    }
+    const embed = new Discord.MessageEmbed()
+    .setTitle(`autoname شروع شد`)
+    msg.channel.send(embed)
+    let numbering = 1;
+    for (let [server_member_id, server_member] of msg.member.voice.channel.members) {
+      const nick = server_member.nickname;
+      let t;
+      t = false;
+      if (nick !== null) {
+        if (nick.toLowerCase() === "spect" || nick === "تماشاچی" || nick === "شنونده" || nick.toLowerCase() === "god") {
+          t = true;
+        }
+      }
+      if (server_member.id !== client.user.id && t == false) {
+        server_member.setNickname(numbering.toString() + " | " + server_member.user.username)
+      }
+      numbering = numbering + 1;
+    }
+  }
+  if (msg.content.startsWith(`${prefix}support`)) {
+    const embed = new Discord.MessageEmbed()
+    .setTitle('SUPPORT')
+    .setImage('https://thumbs.gfycat.com/NervousBitterHarvestmen-small.gif')
+    .setURL('https://discord.gg/Xw2eW2h')
+    .setColor(Math.floor(Math.random() * 16777214) + 1)
+    .setFooter('برای پشتیبانی به سرور ما مراجعه فرمایید')
+    msg.channel.send(embed)
+  }
+  if (msg.content.startsWith(`${prefix}ping`)) {
+    let bot_ping = Date.now() - msg.createdTimestamp;
+    if (bot_ping < 0) {
+      bot_ping = bot_ping * -1;
+    }
+    const embed = new Discord.MessageEmbed()
+    .setTitle('Ping')
+    .setColor(0x5142f5)
+    .setDescription("پینگ بات برار است با  : `" + `${bot_ping}` + " ms`");
+    bot_ping = undefined;
+    delete bot_ping;
+    msg.channel.send(embed);
+  }
+  /*if (msg.content.startsWith(`${prefix}invite`)) {
+    const embed = new Discord.MessageEmbed()
+      .setTitle('INVITE')
+      .setURL('https://discord.com/oauth2/authorize?client_id=750734690163490866&scope=bot&permissions=2146958841')
+      .setColor(Math.floor(Math.random() * 16777214) + 1)
+      .setFooter("برای اضافه کردن بات به سرور خود روی این کلیک کنید")
+    msg.channel.send(embed)
+  }
+});
+client.on('guildCreate', guild => {
+  const embed = new Discord.MessageEmbed()
+  .setTitle('🌸 برای شما که لایق بهترین‌ها هستید 🌸')
+  .setColor(0x34eb9e)
+  .addFields(
+    {name: `آقا / خانم ${guild.owner.user.username}` , value: '```با تشکر از شما که بات مارو به خانواده گرم خودتون راه دادید ، تا باهم کلی خاطره های خوب بسازیم ```'},
+    {name: 'چگونه از بات استفاده کنم ؟ ' , value: '``` لطفا برای استفاده از بات از دستور کمک استفاده کنید ```'},
+    {name: 'Bot Prefix' , value: '```8 help```'},
+    {name:'ارتباط با ما' , value:'همچنین  برای ارتباط با ما میتونید به لینک زیر مراجعه بفرمایید'},
+    {name:'MafiaBot Server Link' , value:'https://discord.gg/Xw2eW2h'}
+    )
+  guild.members.cache.get(guild.ownerID).send(embed)
+  guild.roles.create({ data: { name: 'Mafia God', color: 'RED', permissions: ['MUTE_MEMBERS', 'SEND_MESSAGES', 'CONNECT', 'SPEAK', 'MANAGE_CHANNELS'] } });
+})
+client.login("")

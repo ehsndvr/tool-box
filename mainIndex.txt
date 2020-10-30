@@ -1,0 +1,218 @@
+/*const Discord = require('discord.js');
+const client = new Discord.Client();
+const fs = require('fs');
+const ms = require('ms');
+const { send, config } = require('process');
+const json_log = require('./log.json')
+const json_role_log = require('./role_log.json')
+const prefix = "8";
+client.commands = new Discord.Collection();
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+for (const file of commandFiles) {
+  const command = require(`./commands/${file}`);
+  client.commands.set(command.name, command);
+}
+client.on('ready', () => {
+
+  //const server_count = client.guilds.cache.;
+  client.user.setStatus('online')
+  console.log(`Logged in as  TOOL-BOX In ${client.guilds.cache.size} Server!`)
+  console.log(`Logged in as ${client.user.tag}!`);//${client.guilds.cache.keyArray()}`);
+  client.user.setActivity('جعبه ابزار | TOOL-BOX', { type: "PLAYING" });
+  /*let status_num = 0
+  setInterval(function () {
+    if (status_num == 0) {
+      client.user.setActivity(`جعبه ابزار | TOOL-BOX In ${client.guilds.cache.size} Servers`, { type: "PLAYING" })
+      status_num += 1;
+    }
+    else {
+      client.user.setActivity('جعبه ابزار | TOOL-BOX', { type: "PLAYING" });
+      status_num = 0;
+    }
+  }, 3000);
+});
+
+client.on("message", msg => {
+  //this code for mafia god only
+
+
+  if (msg.author.id === client.user.id) {
+    return;
+  }
+  if (!msg.content.startsWith(`${prefix}`)) {
+    return;
+  }
+  const args = msg.content.slice(prefix.length).trim().split(' ');
+  const command = args.shift().toLowerCase();
+  let cmd = client.commands.get(`${command}`);
+  if (cmd) {
+    cmd.execute(msg , json_role_log, json_log, client);
+  }
+
+});
+client.on('guildCreate', guild => {
+  const embed = new Discord.MessageEmbed()
+    .setTitle('🌸 برای شما که لایق بهترین‌ها هستید 🌸')
+    .setColor(0x34eb9e)
+    .addFields(
+      { name: `آقا / خانم ${guild.owner.user.username}`, value: '```با تشکر از شما که بات مارو به خانواده گرم خودتون راه دادید ، تا باهم کلی خاطره های خوب بسازیم ```' },
+      { name: 'چگونه از بات استفاده کنم ؟ ', value: '``` لطفا برای استفاده از بات از دستور کمک استفاده کنید ```' },
+      { name: 'Bot Prefix', value: '```8 help```' },
+      { name: 'ارتباط با ما', value: 'همچنین  برای ارتباط با ما میتونید به لینک زیر مراجعه بفرمایید' },
+      { name: 'TOOL-BOX Server Link', value: 'https://discord.gg/Xw2eW2h' }
+    )
+  guild.members.cache.get(guild.ownerID).send(embed)
+  guild.roles.create({ data: { name: '🔰 TOOL-BOX 🔰', color: '0x34eb7d', permissions: ['MUTE_MEMBERS', 'SEND_MESSAGES', 'CONNECT', 'SPEAK', 'MANAGE_CHANNELS'] } });
+  new Discord.WebhookClient('753675412986396782', 'RjkN9eRUMpaZD-6jnRUC66HkayAbehk8Yf1C5SVE1Olvmz6fxoXpdgqybUSgJDH_vHJD').send(`Bot joined **${guild.name}**, bot in **${client.guilds.cache.size}** servers`)
+});
+
+client.on('guildDelete', guild =>{
+  new Discord.WebhookClient('753675412986396782', 'RjkN9eRUMpaZD-6jnRUC66HkayAbehk8Yf1C5SVE1Olvmz6fxoXpdgqybUSgJDH_vHJD').send(`Bot left **${guild.name}**, bot in **${client.guilds.cache.size}**`)
+});
+
+client.login("NzUwNzM0NjkwMTYzNDkwODY2.X0-2Kg.XMrcvcvDRhGU-19nGPyrQp8r6J4");
+*/
+/*if (command !== 'help' || command !== 'rule' || command !== 'ping' || command !== 'insta' || command !== 'covid' || command !== 'covidco' || command !== 'join') {
+    if (!msg.member.roles.cache.find(r => r.name === "🔰 TOOL-BOX 🔰")) {
+      const embed = new Discord.MessageEmbed()
+        .setColor(0xffff99)
+        .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+        .addField('فقط کسی که رول `🔰 TOOL-BOX 🔰` میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+        .setTitle('شما نمیتوانید از بات استفاده کنید')
+        .setColor(0xff0000)
+      return msg.channel.send(embed)
+    }
+  }*/
+
+const Discord = require('discord.js');
+const client = new Discord.Client();
+const fs = require('fs');
+const ms = require('ms');
+const { send, config } = require('process');
+const json_log = require('./log.json')
+const json_role_log = require('./role_log.json')
+client.commands = new Discord.Collection();
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+for (const file of commandFiles) {
+  const command = require(`./commands/${file}`);
+  client.commands.set(command.name, command);
+}
+client.on('ready', () => {
+  /*let i = 1;
+  client.guilds.cache.forEach(server => {
+    console.log(i + " " + server.name + " | " + server.id + " | ", server.owner.user.tag);
+    i++;
+  });
+  //const server_count = client.guilds.cache.;
+  client.user.setStatus('online')
+  console.log(`Logged in as  TOOL-BOX In ${client.guilds.cache.size} Server!`)
+  console.log(`Logged in as ${client.user.tag}!`);//${client.guilds.cache.keyArray()}`);
+  let status_num = 0
+  setInterval(function () {
+    if (status_num == 0) {
+      client.user.setActivity(`8help For Show Help`, { type: "WATCHING" })
+      status_num += 1;
+    }
+    else if(status_num === 1){
+      client.user.setActivity('جعبه ابزار | TOOL-BOX', { type: "LISTENING" });
+      status_num++;
+    }
+    else{
+      client.user.setActivity('8support | برای پشتیبانی', { type: "LISTENING" });
+      status_num = 0;
+    }
+  }, 3000);
+  //https://discordapp.com/api/webhooks/763759798289956924/y19fLCg6fsDtozj049LAcotIpCUqPdJviNHZX-ayVrGQmzxPG_xiRYbtaKbUbuNng1m_
+  //setInterval(function(){new Discord.WebhookClient("764419953204920330", "2HLixBdXhVooaG0ZIutC3wivo8skmJS2mBizlJjFd1_h-r-9sCJidJf0YHaXAUigR4hk").send(new Discord.MessageAttachment('./config.json'))}, ms("1h"))
+});
+client.on("message", msg => {
+  //this code for mafia god only
+
+  if(msg.content === 'TB prefix'){
+    return msg.channel.send(new Discord.MessageEmbed().setTitle(`Prefix : ${require('./config.json').prefix[msg.guild.id].prefix}`))
+  }
+  if(msg.mentions.users.first() && msg.guild.member(msg.mentions.users.first()).id === msg.guild.me.id)
+  {
+    return msg.channel.send(new Discord.MessageEmbed().setTitle(`Prefix : ${require('./config.json').prefix[msg.guild.id].prefix}`))
+  }
+  if (msg.author.id === client.user.id) {
+    return;
+  }
+  if (!msg.content.startsWith(`${require('./config.json').prefix.length}`)) {
+    return;
+  }
+  if((require('./config.json').channels_lockdown[msg.guild.id]) !== undefined && !(msg.content.toLowerCase().startsWith("8delete") || msg.content.toLowerCase().startsWith("8delete") || msg.content.toLowerCase().startsWith("8lockdown")) && require('./config.json').channels_lockdown[msg.guild.id].channel_id !== msg.channel.id)
+  {
+    msg.delete()
+    return msg.channel.send(new Discord.MessageEmbed().addField('ERROR', `شما باید این دستور را در ${msg.guild.channels.cache.get(require('./config.json').channels_lockdown[msg.guild.id].channel_id)} ارسال کنید`).setColor('RANDOM'))
+    .then(message => {
+      message.delete({timeout: 3000})
+    })
+  }
+  /*if(!msg.guild.me.hasPermission("ADMINISTRATOR"))
+  {
+    return msg.channel.send(new Discord.MessageEmbed().setTitle('چرا من پرم ادمینی ندارم ؟').setColor('RED'))
+  }*/
+  const args = msg.content.slice(require('./config.json').prefix.length).trim().split(' ');
+  const command = args.shift().toLowerCase();
+  let cmd = client.commands.get(`${command}`);
+  if (cmd) {
+    cmd.execute(msg , json_role_log, json_log, client);
+  }
+
+});
+client.on('guildCreate', guild => {
+  const embed = new Discord.MessageEmbed()
+    .setTitle('🌸 برای شما که لایق بهترین‌ها هستید 🌸')
+    .setColor(0x34eb9e)
+    .addFields(
+      { name: `آقا / خانم ${guild.owner.user.username}`, value: '```با تشکر از شما که بات مارو به خانواده گرم خودتون راه دادید ، تا باهم کلی خاطره های خوب بسازیم ```' },
+      { name: 'چگونه از بات استفاده کنم ؟ ', value: '``` لطفا برای استفاده از بات از دستور کمک استفاده کنید ```' },
+      { name: 'Bot Prefix', value: '```8 help```' },
+      { name: 'ارتباط با ما', value: 'همچنین  برای ارتباط با ما میتونید به لینک زیر مراجعه بفرمایید' },
+      { name: 'TOOL-BOX Server Link', value: 'https://discord.gg/Xw2eW2h' }
+    )
+  guild.members.cache.get(guild.ownerID).send(embed)
+  let json_prefix_log = require('./config.json');
+  json_prefix_log.prefix[guild.id] = {}
+  json_prefix_log.prefix[guild.id].prefix = "8";
+  fs.writeFile('./config.json', JSON.stringify(json_prefix_log), function (err) {
+    if (err) throw err;
+    console.log('complete');
+  });
+  guild.roles.create({ data: { name: '💢 ᴍᴀғɪᴀɢᴏᴅ 💢', color: '0xeb3477', permissions: ['MUTE_MEMBERS', 'SEND_MESSAGES', 'CONNECT', 'SPEAK'] } });
+  //new Discord.WebhookClient('764419953204920330', '2HLixBdXhVooaG0ZIutC3wivo8skmJS2mBizlJjFd1_h-r-9sCJidJf0YHaXAUigR4hk').send(`Bot joined **${guild.name}**, bot in **${client.guilds.cache.size}** servers`)
+});
+
+/*client.on('guildDelete', guild =>{
+  let json_prefix_log = require('./config.json')
+  delete json_prefix_log[guild.id]
+  fs.writeFile('./config.json', JSON.stringify(json_prefix_log), function (err) {
+    if (err) throw err;
+    console.log('complete');
+  });
+  new Discord.WebhookClient('764419953204920330', '2HLixBdXhVooaG0ZIutC3wivo8skmJS2mBizlJjFd1_h-r-9sCJidJf0YHaXAUigR4hk').send(`Bot left **${guild.name}**, bot in **${client.guilds.cache.size}**`)
+});*/
+client.login("NzQ5MDE3MzAyNjA2ODA3MTUw.X0l2uQ.ObiAtql24Ad3SytSJr5Q-vIvGYI");
+
+/*if (command !== 'help' || command !== 'rule' || command !== 'ping' || command !== 'insta' || command !== 'covid' || command !== 'covidco' || command !== 'join') {
+    if (!msg.member.roles.cache.find(r => r.name === "🔰 TOOL-BOX 🔰")) {
+      const embed = new Discord.MessageEmbed()
+        .setColor(0xffff99)
+        .setFooter(` پیام ایجاد شد توسط ${msg.author.username}`, msg.author.displayAvatarURL())
+        .addField('فقط کسی که رول `🔰 TOOL-BOX 🔰` میتواند از این دستور استفاده کند', 'لطفا از رولی که بات ساخته استفاده کنید')
+      return msg.channel.send(embed);
+    }
+    if (!msg.member.hasPermission("MUTE_MEMBERS")) {
+      const embed = new Discord.MessageEmbed()
+        .setTitle('شما نمیتوانید از بات استفاده کنید')
+        .setColor(0xff0000)
+      return msg.channel.send(embed)
+    }
+  }*/ 

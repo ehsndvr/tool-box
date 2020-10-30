@@ -1,0 +1,12 @@
+{
+    "YOUR_ID": "",
+    "PREFIX": "8",
+    "TOKEN": "",
+    "SERVER_ID": "",
+    "READY_MESSAGE": "DM Bot is now ONLINE!", 
+    "ACTIVITY_STATUS": "Direct Messages", 
+	"RED": "#b70000",
+    "ORANGE": "#ff6a00",
+	"GREEN": "#00ff26",
+	"PURPLE": "#d604cf"
+}
