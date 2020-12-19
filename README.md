@@ -9,7 +9,7 @@ Discord Public Bot
 بخش های پابلیک
 برای ارتباط با ما در دیسکورد
 
-Ehsan#1616 , aryan#9630
+FEAR#1414 , secret_cat#6426
 
 نصب :
 
